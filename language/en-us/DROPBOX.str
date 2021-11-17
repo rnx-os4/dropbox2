@@ -1,0 +1,12 @@
+LABEL_SERVICE_DROPBOX_INFO::::<b>DropBox.</b> Dropbox lets you bring all your photos, docs, and videos anywhere. Any file you save to your Dropbox will automatically save to all your computers, phones and even the Dropbox website. Dropbox also makes it easy to share with others.
+DROBO_CONN::::Dropbox is connected to a Dropbox user account
+DROBO_RUNN::::Dropbox daemon for this user is running
+DROBO_NO_CONN::::Dropbox is not linked to any user account. Click icon to display connection link.
+DROBO_NO_RUNN::::Dropbox daemon for this user is not running
+DROBO_NO_ACT::::Dropbox for this account is inactive
+DROBO_ENA::::Dropbox daemon is enabled for this account
+DROBO_DIS::::Dropbox daemons is NOT enabled for this account
+DROBO_CONFIRM_USER_DIS::::Do you really want to disable Dropbox services for user
+DROBO_CONFIRM_USER_ENA::::Do you really want to enable Dropbox services for user
+DROBO_CONFIRM_USER_STOP::::Do you really want to stop the Dropbox daemon for user
+DROBO_CONFIRM_USER_RUN::::Do you really want to start the Dropbox daemon for user

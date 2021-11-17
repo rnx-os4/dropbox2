@@ -1,0 +1,8 @@
+
+DETAIL_URL=http://readynasxtras.com/readynas-x86-add-ons/dropbox-x86
+CURRENT_URL=http://readynasxtras.com/addons/x86/xml/DROPBOX_CURRENT.xml
+ICON_URL=/addons/DROPBOX/dropbox_logo.gif
+REBOOT_REQUIRED=n
+RESTART_APACHE=n
+MIN_RAIDIATOR_VERSION=4.2.15
+

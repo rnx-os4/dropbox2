@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<addon>
+  <version>1.2.48-rnx86-0.2.7</version>
+  <download_url></download_url>
+  <message>
+    <en-us>
+      <![CDATA[<h2>DropBox 1.2.48
+      New in this release:
+      <ul>
+        <li>Initial public release</li>
+      </ul>
+      To download the latest release of this add-on got to the <a href="http://readynasxtras.com/readynas-x86-add-ons/dropbox-x86">DropBox add-on page</a>.
+      ]]>
+    </en-us>
+  </message>
+  <min_raidiator_version>4.2.15</min_raidiator_version>
+</addon>

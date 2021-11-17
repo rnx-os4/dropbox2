@@ -1,0 +1,15 @@
+<addon>
+  <name>DROPBOX</name>
+  <friendly_name>DropBox</friendly_name>
+  <version>1.2.48-rnx86-0.2.1</version>
+  <author>ReadyNAS Xtras</author>
+  <description>
+    <en-us>
+      <![CDATA[Dropbox lets you bring all your photos, docs, and videos anywhere. Any file you save to your Dropbox will automatically save to all your computers, phones and even the Dropbox website. Dropbox also makes it easy to share with others.]]>
+    </en-us>
+  </description>
+  <detail_url>http://readynasxtras.com/readynas-x86-add-ons/dropbox-x86</detail_url>
+  <download_url></download_url>
+  <icon>/addons/DROPBOX/dropbox_logo.gif</icon>
+  <min_raidiator_version>4.2.15</min_raidiator_version>
+</addon>

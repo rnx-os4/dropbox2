@@ -1,0 +1,224 @@
+#!/bin/sh
+
+### BEGIN INIT INFO
+# Provides:          dropbox
+# Required-Start:    $local_fs $remote_fs $network $syslog $named
+# Required-Stop:     $local_fs $remote_fs $network $syslog $named
+# Default-Start:     2 3 4 5
+# Default-Stop:      0 1 6
+# X-Interactive:     false
+# Short-Description: dropbox service
+### END INIT INFO
+# dropbox service
+
+### For good measure
+chown -R admin:admin /c/.dropbox-dist
+chmod -R 755 /c/.dropbox-dist/*
+
+###
+# No default users, really
+###
+DROPBOX_USERS="admin"
+
+###
+# Check for config file and source if present
+###
+if [ -f /etc/default/dropbox ]; then
+	. /etc/default/dropbox
+fi
+
+###
+# Use a centralized copy of Dropbox, no
+# need to copy it into each user's home
+###
+DAEMON=/c/.dropbox-dist/dropbox
+###
+# Check for NEW dropbox startup
+###
+if [ ! -f /c/.dropbox-dist/dropbox ]; then
+  if [ ! -f /c/.dropbox-dist/dropboxd ]; then
+    echo "No Dropbox daemon found!"
+    exit 1
+  else
+    DAEMON=/c/.dropbox-dist/dropboxd
+  fi
+fi
+RUNME=/c/.dropbox-dist/run_dropbox.sh
+
+start() {
+    ###
+    # Only start if there are users defined
+    ###
+    if [ ! "$DROPBOX_USERS" = "" ]; then
+        echo "Starting dropbox..."
+        for dbuser in $DROPBOX_USERS; do
+	    if [ "${dbuser}" = "admin" ]; then
+		HOMEDIR=/c
+	    else
+            	HOMEDIR=`getent passwd $dbuser | cut -d: -f6`
+	    fi
+	    if [ -f ${HOMEDIR}/.dropbox/dropbox.pid ]; then
+		rm -f ${HOMEDIR}/.dropbox/dropbox.pid
+	    fi
+            if [ -x $HOMEDIR ]; then
+                HOME="$HOMEDIR" start-stop-daemon -b -o -c $dbuser -S -u $dbuser -x $RUNME -- $DAEMON $dbuser $HOMEDIR
+            fi
+        done
+    else
+	echo "No DropBox users defined!"
+	exit 1
+    fi
+}
+
+startsingle() {
+    dbuser=$1
+    ###
+    # Only start if there are users defined
+    ###
+    if [ ! "${dbuser}" = "" ]; then
+	###
+	# Check for already running service and
+	# only start if there is none
+	###
+	dbpid=`pgrep -u $dbuser dropbox | tail -n1`
+	if [ -z "$dbpid" ]; then
+            echo "Starting dropbox for ${dbuser} ..."
+    	    if [ "${dbuser}" = "admin" ]; then
+		HOMEDIR=/c
+	    else
+		HOMEDIR=`getent passwd $dbuser | cut -d: -f6`
+	    fi
+	    if [ -f ${HOMEDIR}/.dropbox/dropbox.pid ]; then
+		rm -f ${HOMEDIR}/.dropbox/dropbox.pid
+	    fi
+    	    if [ -x $HOMEDIR ]; then
+        	HOME="$HOMEDIR" start-stop-daemon -b -o -c $dbuser -S -u $dbuser -x $RUNME -- $DAEMON $dbuser $HOMEDIR
+    	    fi
+	fi
+    else
+	echo "No DropBox user given!"
+	exit 1
+    fi
+}
+
+stop() {
+    ###
+    # This is not exactly safe because there may have been changes
+    # to our users in the meantime.
+    ###
+    echo "Stopping dropbox..."
+    for dbuser in $DROPBOX_USERS; do
+	if [ "${dbuser}" = "admin" ]; then
+		HOMEDIR=/c
+	else
+        	HOMEDIR=`getent passwd $dbuser | cut -d: -f6`
+	fi
+        if [ -x $HOMEDIR ]; then
+            # start-stop-daemon -o -c $dbuser -K -u $dbuser -x $DAEMON
+            kill `ps -U ${dbuser} | grep -v "run_" | grep dropbox | awk '{ print $1 }'`
+            rm -f /tmp/dropbox.${dbuser}
+        fi
+    done
+}
+
+stopsingle() {
+    dbuser=$1
+    ###
+    # This is not exactly safe because there may have been changes
+    # to our users in the meantime.
+    ###
+    if [ ! "$dbuser" = "" ]; then
+        ## echo "Stopping dropbox for ${dbuser} ..."
+	if [ "${dbuser}" = "admin" ]; then
+	    HOMEDIR=/c
+	else
+    	    HOMEDIR=`getent passwd $dbuser | cut -d: -f6`
+	fi
+    	if [ -x $HOMEDIR ]; then
+	    # start-stop-daemon -o -c $dbuser -K -u $dbuser -x $DAEMON
+	    kill `ps -U ${dbuser} | grep -v "run_" | grep dropbox | awk '{ print $1 }'`
+	    rm -f /tmp/dropbox.${dbuser}
+    	fi
+    fi
+}
+
+status() {
+    GLOBALST=1
+    for dbuser in $DROPBOX_USERS; do
+        dbpid=`pgrep -u $dbuser dropbox | tail -n1`
+        if [ -z "$dbpid" ] ; then
+            echo "dropboxd for USER $dbuser: not running."
+        else
+            echo "dropboxd for USER $dbuser: running (pid $dbpid)"
+            GLOBALST=0
+        fi
+    done
+    exit ${GLOBALST}
+}
+
+statusquiet() {
+    GLOBALST=1
+    for dbuser in $DROPBOX_USERS; do
+        dbpid=`pgrep -u $dbuser dropbox | tail -n1`
+        if [ ! -z "$dbpid" ] ; then
+            GLOBALST=0
+        fi
+    done
+    exit ${GLOBALST}
+}
+
+statussingle() {
+    dbuser=$1
+    dbpid=`pgrep -u $dbuser dropbox | tail -n1`
+    if [ -z "$dbpid" ] ; then
+        echo "dropboxd for USER $dbuser: not running."
+	exit 1
+    else
+        echo "dropboxd for USER $dbuser: running (pid $dbpid)"
+	exit 0
+    fi
+}
+
+case "$1" in
+
+    start)
+        start
+        ;;
+
+    startsingle)
+	startsingle "$2"
+	;;
+	
+    stop)
+        stop
+        ;;
+
+    stopsingle)
+	stopsingle "$2" 
+	;;
+
+    restart|reload|force-reload)
+        stop
+        start
+        ;;
+
+    status)
+        status
+        ;;
+
+    statussingle)
+	statussingle "$2"
+	;;
+	
+
+    statusquiet)
+	statusquiet "$2"
+	;;
+	
+    *)
+        echo "Usage: /etc/init.d/dropbox {start|stop|reload|force-reload|restart|status}"
+        exit 1
+
+esac
+
+exit 0

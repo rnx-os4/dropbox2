@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<addon>
+  <name>DROPBOX</name>
+  <friendly_name>DropBox</friendly_name>
+  <version>Install-rnx86-2.1.1</version>
+  <detail_url>http://readynasxtras.com/readynas-x86-add-ons/dropbox-x86</detail_url>
+  <author>ReadyNAS Xtras</author>
+  <get_url>../addons/DROPBOX/DROPBOX_HANDLER.pl</get_url>
+  <set_url>../addons/DROPBOX/DROPBOX_HANDLER.pl</set_url>
+  <preaction>DROPBOX_preaction</preaction>
+  <onloadaction>DROPBOX_onloadaction</onloadaction>
+  <current_url>http://readynasxtras.com/addons/x86/xml/DROPBOX_CURRENT.xml</current_url>
+  <min_raidiator_version>4.2.15</min_raidiator_version>
+</addon>

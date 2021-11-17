@@ -1,0 +1,12 @@
+LABEL_SERVICE_DROPBOX_INFO::::<b>DropBox.</b> Mit Dropbox haben Sie ihre Fotos, Dokumente und Videos überall dabei. Jede Datei, die in der Dropbox abgelegt wird, wird automatisch auf alle mit der Dropbox verbundenen Computer, Mobiltelefone und den Online-Speicher von Dropbox verteilt. Selbst das Teilen von Inhalten mit anderen Nutzern ist mit Dropbox kein Problem.
+DROBO_CONN::::Diese Dropbox ist mit einem Dropbox-Konto verbunden.
+DROBO_RUNN::::Der Dropbox-Dämon für diesen Benutzer ist aktiv.
+DROBO_NO_CONN::::Diese Dropbox ist nicht mit einem Dropbox-Konto verbunden. Ein Klick auf das Icon zeigt den notwendigen Verbindungs-Link an.
+DROBO_NO_RUNN::::Der Dropbox-Dämon für diesen Benutzer läuft nicht.
+DROBO_NO_ACT::::Der Dropbox-Dienst ist für dieses Konto nich freigeschaltet.
+DROBO_ENA::::Der Dropbox-Dämon ist für dieses Konto aktiviert.
+DROBO_DIS::::Der Dropbox-Dömon ist für dieses Konto NICHT aktiviert.
+DROBO_CONFIRM_USER_DIS::::Dropbox-Dienst für diesen Benutzer wirklich deaktivieren:
+DROBO_CONFIRM_USER_ENA::::Dropbox-Dienst für diesen Benutzer wirklich aktivieren:
+DROBO_CONFIRM_USER_STOP::::Dropbox-Dämon für diesen Benutzer wirklich anhalten:
+DROBO_CONFIRM_USER_RUN::::Dropbox-Dienst für diesen Benutzer wirklich starten:

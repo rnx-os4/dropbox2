@@ -1,0 +1,13 @@
+LABEL_SERVICE_DROPBOX_INFO::::<b>DropBox.</b> Dropbox låter dig ta med alla dina bilder, dokument och filmer överallt. Filer du sparar i din Dropbox kommer
+automatiskt sparas till alla dina datorer, telefoner och även till Dropbox hemsida. Dropbox gör det även enklare att dela med andra.
+DROBO_CONN::::Dropbox är ansluten till ett Dropbox användarkonto:
+DROBO_RUNN::::Dropbox daemon körs för användaren:
+DROBO_NO_CONN::::Dropbox är inte anslutet till något användarkonto. Klicka på ikonen för att visa anslutningslänk.
+DROBO_NO_RUNN::::Dropbox daemon körs inte för användaren:
+DROBO_NO_ACT::::Dropbox är inaktivt för kontot:
+DROBO_ENA::::Dropbox daemon är aktiverat för detta konto:
+DROBO_DIS::::Dropbox daemon är INTE aktiverat för detta konto:
+DROBO_CONFIRM_USER_DIS::::Vill du avaktivera Dropbox tjänsten för användare:
+DROBO_CONFIRM_USER_ENA::::Vill du aktivera Dropbox tjänsten för användare:
+DROBO_CONFIRM_USER_STOP::::Vill du stoppa Dropbox daemon för användare:
+DROBO_CONFIRM_USER_RUN::::Vill du starta Dropbox daemon för användare:

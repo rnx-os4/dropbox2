@@ -1,0 +1,5 @@
+#!/bin/bash
+
+# Gracefully shut down Dropbox
+/etc/init.d/dropbox stop
+

@@ -1,0 +1,84 @@
+#!/bin/bash
+
+if [ "$1" != "" ]; then
+    DROBO_VER=$1
+    DROBO_URL="https://dl-web.dropbox.com/u/17/dropbox-lnx.x86-${DROBO_VER}.tar.gz";
+
+    # echo "${DROBO_URL}" >> /tmp/drobo_upgrade.versions
+    
+    export PATH=/usr/bin:/usr/sbin:/bin:/sbin:${PATH}
+
+    # delete all global update files Dropbox may have pushed
+    # to various places
+    rm -f /c/Dropbox/.dropbox.cache/dropbox-upgrade*
+    rm -f /c/home/*/Dropbox/.dropbox.cache/dropbox-upgrade*
+    rm -rf /tmp/.dropbox-dist-new*
+
+    # Remember current version
+    CUR_VER=`cat /c/.dropbox-dist/VERSION`
+
+    # Check state of currently installed version
+    RUN_STATE=0
+    /etc/init.d/dropbox statusquiet
+    if [ "$?" = "0" ]; then
+        /etc/init.d/dropbox stop
+        sleep 5
+        RUN_STATE=1
+    fi
+
+    # force-kill any remaining dropbox instances
+    # that may be running
+    pkill -9 dropbox$
+    sleep 2
+
+    # DATE=`date +"%Y%m%d %H:%M:%S"`
+    # echo "${DATE} Installing Dropbox ${NEW_VER}" >> /tmp/dropbox_install.log
+    # remove our old tmp-dir
+    rm -rf /tmp/rnxdrobo
+    mkdir -p /tmp/rnxdrobo
+    cd /tmp/rnxdrobo
+
+    if [ -d /c/.dropbox-dist.${DROBO_VER} ]; then
+	# already have a copy of the version to be installed
+	if [ -d /c/.dropbox-dist.${CUR_VER} ]; then
+	    # and also a copy of the currently running version
+	    rm -rf /c/.dropbox-dist
+	else
+	    # no backup available so create one
+	    mv /c/.dropbox-dist /c/.dropbox-dist.${CUR_VER}
+	fi	
+        mv /c/.dropbox-dist.${DROBO_VER} /c/.dropbox-dist
+    else
+	# no local copy available so get it from the source
+        wget -q -O dropbox-upgrade.tar.gz --no-check-certificate "${DROBO_URL}"
+        if [ "$?" = "0" ]; then
+    	    # Download was successful so unpack
+    	    tar xzf dropbox-upgrade.tar.gz
+	    chown -R admin:admin .
+	    # Copy our start script over to the new location
+
+	    # Make backup copy of old version
+	    if [ ! -d /c/.dropbox-dist.${CUR_VER} ]; then
+    		mv /c/.dropbox-dist /c/.dropbox-dist.${CUR_VER}
+	    else
+		rm -rf /c/.dropbox-dist
+	    fi
+	    # move new version in place
+	    mv /tmp/rnxdrobo/.dropbox-dist /c/.dropbox-dist
+	fi
+    fi
+    cp -p /usr/share/dropbox/run_dropbox.sh /c/.dropbox-dist/
+
+    # restart Dropbox if it was running before
+    if [ "${RUN_STATE}" = "1" ]; then
+	/etc/init.d/dropbox start
+    fi
+    
+    # Clean up
+    cd -
+    rm -rf /tmp/rnxdrobo
+    
+    # Update version information
+    CUR_VER=`cat /c/.dropbox-dist/VERSION`
+    echo -n "${CUR_VER}" > /usr/share/dropbox/running
+fi

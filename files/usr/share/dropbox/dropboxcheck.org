@@ -1,0 +1,114 @@
+#!/bin/bash
+
+DROPBOX_AUTOUP=0
+
+export PATH=/usr/bin:/usr/sbin:/bin:/sbin:${PATH}
+
+# delete all global update files Dropbox may have pushed
+# to various places
+rm -f /c/Dropbox/.dropbox.cache/dropbox-upgrade*
+rm -f /c/home/*/Dropbox/.dropbox.cache/dropbox-upgrade*
+rm -rf /tmp/.dropbox-dist-new*
+
+# Check for available updates
+CUR_VER=`cat /c/.dropbox-dist/VERSION`
+wget --no-check-certificate -qO /tmp/rss.xml https://www.dropbox.com/release_notes/rss.xml
+# NEW_VER=`wget --no-check-certificate -qO- https://www.dropbox.com/release_notes/rss.xml | grep -i Stable | awk '{ print $4 }' | awk -F'<' '{print $1}' | head -n1`
+NEW_VER=`xmllint --format --recover /tmp/rss.xml | grep title.*Stable | head -n1 | awk '{ print $4 }' | sed 's#</title>.*##' | tr -d "\n"`
+# TST_VER=`wget --no-check-certificate -qO- https://www.dropbox.com/release_notes/rss.xml | grep -i Testing | awk '{ print $4 }' | awk -F'<' '{print $1}' | head -n1`
+TST_VER=`xmllint --format --recover /tmp/rss.xml | grep title.*Testing | head -n1 | awk '{ print $4 }' | sed 's#</title>.*##' | tr -d "\n"`
+rm -f /tmp/rss.xml
+
+echo -n "${CUR_VER}" > /usr/share/dropbox/running
+echo -n "${NEW_VER}" > /usr/share/dropbox/stable
+echo -n "${TST_VER}" > /usr/share/dropbox/testing
+
+# Check for unwanted 64-bit update by dropbox
+DROP32=`file /c/.dropbox-dist/dropbox | awk '{ print $3 }'`
+if [ "${DROP32}" != "32-bit" ]; then
+    # uhoh, Dropbox sent us a 64-bit version
+    # remove our old tmp-dir
+    rm -rf /tmp/rnxdrobo
+    mkdir -p /tmp/rnxdrobo
+    cd /tmp/rnxdrobo
+
+    # get the 32-bit version of the currently installed Dropbox daemon
+    wget -q -O dropbox-upgrade.tar.gz --no-check-certificate "https://dl-web.dropbox.com/u/17/dropbox-lnx.x86-${CUR_VER}.tar.gz"
+    if [ "$?" = "0" ]; then
+	# Download was successful so unpack
+	tar xzf dropbox-upgrade.tar.gz
+	chown -R admin:admin .
+
+	# Don't make a backup copy of old version since
+	# it's 64bit and we don't want that
+	rm -rf /c/.dropbox-dist
+
+	# move new version in place
+	mv /tmp/rnxdrobo/.dropbox-dist /c/.dropbox-dist
+    fi
+
+    # Copy our start script over to the new location
+    cp -p /usr/share/dropbox/run_dropbox.sh /c/.dropbox-dist/
+
+    # Clean up
+    cd -
+    rm -rf /tmp/rnxdrobo
+    exit 0
+fi
+
+. /etc/default/dropbox
+
+if [ "${DROPBOX_AUTOUP}" = "0" ]; then
+    # auto-upgrade is disabled
+    exit 0
+fi
+
+if [ "${NEW_VER}" \> "${CUR_VER}" ]; then
+
+    # DATE=`date +"%Y%m%d %H:%M:%S"`
+    # echo "${DATE} Installing Dropbox ${NEW_VER}" >> /tmp/dropbox_install.log
+    # remove our old tmp-dir
+    rm -rf /tmp/rnxdrobo
+    mkdir -p /tmp/rnxdrobo
+    cd /tmp/rnxdrobo
+
+    # get latest version, 32bit arch
+    wget -q -O dropbox-latest.tar.gz --no-check-certificate "http://www.dropbox.com/download?plat=lnx.x86"
+
+    if [ "$?" = "0" ]; then
+	# Download was successful so unpack
+	tar xzf dropbox-latest.tar.gz
+	chown -R admin:admin .
+	# Copy our start script over to the new location
+	cp -p /usr/share/dropbox/run_dropbox.sh /tmp/rnxdrobo/.dropbox-dist/
+
+	# Check state of currently installed version
+	RUN_STATE=0
+	/etc/init.d/dropbox statusquiet
+	if [ "$?" = "0" ]; then
+	    /etc/init.d/dropbox stop
+	    sleep 5
+	    RUN_STATE=1
+	fi
+
+	# force-kill any remaining dropbox instances
+	# that may be running
+	pkill -9 dropbox$
+	sleep 2
+
+	# Make backup copy of old version
+	mv /c/.dropbox-dist /c/.dropbox-dist.${CUR_VER}
+	# move new version in place
+	mv /tmp/rnxdrobo/.dropbox-dist /c/.dropbox-dist
+
+	# restart Dropbox if it was running before
+	if [ "${RUN_STATE}" = "1" ]; then
+	    /etc/init.d/dropbox start
+	fi
+    fi
+
+    cd -
+    # Clean up
+    rm -rf /tmp/rnxdrobo
+
+fi
